@@ -1,0 +1,21 @@
+channels:
+  - conda-forge
+
+dependencies:
+  # Python version and pip
+  - python=3.10
+  - pip
+
+  - duckdb
+  - fastexcel
+  - ipywidgets
+  - jupyter
+  - marimo
+  - polars
+  - pyarrow
+  - sqlalchemy
+  - sqlglot
+
+  # PIP dependencies
+  - pip:
+      - quak

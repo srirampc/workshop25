@@ -9,13 +9,14 @@ def _():
     import marimo as mo
     import polars as pl
     import duckdb
-    return duckdb, mo, pl
+    import os.path
+
+    data_path = mo.notebook_location() / "public" / "gouwens.db"
+    return data_path, duckdb, mo, os, pl
 
 
 @app.cell
 def _(duckdb, pl):
-    import os.path
-
     def fetch_data():
         lines_data = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41593-019-0417-0/MediaObjects/41593_2019_417_MOESM4_ESM.xlsx",
         types_data = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41593-019-0417-0/MediaObjects/41593_2019_417_MOESM5_ESM.xlsx"
@@ -27,9 +28,9 @@ def _(duckdb, pl):
         mdf = pl.read_excel(types_data)
         return rdf, gdf, mdf
 
-    def save_db():
+    def save_db(data_path):
         rdf, gdf, mdf = fetch_data()
-        with duckdb.connect("gouwens.db") as conn:
+        with duckdb.connect(data_path) as conn:
             conn.execute(
                 "CREATE OR REPLACE TABLE driver_lines AS SELECT * FROM rdf"
             )
@@ -43,14 +44,14 @@ def _(duckdb, pl):
 
     # if not os.path.exists("gouwens.db"):
     #    save_db()
-    return fetch_data, os, save_db
+    return fetch_data, save_db
 
 
 @app.cell
-def _(duckdb, mo):
-    data_path = mo.notebook_location() / "gouwens.db"
+def _(data_path, duckdb):
+
     db_conn = duckdb.connect(data_path, read_only=True)
-    return data_path, db_conn
+    return (db_conn,)
 
 
 @app.cell

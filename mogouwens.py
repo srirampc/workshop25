@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.4"
+__generated_with = "0.12.6"
 app = marimo.App(width="full")
 
 
@@ -41,15 +41,16 @@ def _(duckdb, pl):
             )
             conn.commit()
 
-    if not os.path.exists("gouwens.db"):
-        save_db()
+    # if not os.path.exists("gouwens.db"):
+    #    save_db()
     return fetch_data, os, save_db
 
 
 @app.cell
-def _(duckdb):
-    db_conn = duckdb.connect("./gouwens.db")
-    return (db_conn,)
+def _(duckdb, mo):
+    data_path = mo.notebook_location() / "gouwens.db"
+    db_conn = duckdb.connect(data_path, read_only=True)
+    return data_path, db_conn
 
 
 @app.cell

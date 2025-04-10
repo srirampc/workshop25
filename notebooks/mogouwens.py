@@ -12,12 +12,14 @@ def _():
     import duckdb
     import os.path
     import requests
+    import altair as alt
 
     data_path = mo.notebook_location() / "public" / "gouwens.db"
     files_loc =  mo.notebook_location() / "public"
     lines_file = files_loc / "41593_2019_417_MOESM4_ESM.xlsx"
     types_file = files_loc / "41593_2019_417_MOESM5_ESM.xlsx"
     return (
+        alt,
         data_path,
         duckdb,
         files_loc,
@@ -55,7 +57,10 @@ def _(files_loc, mo):
 @app.cell
 def _(duckdb, files_dir, lines_file, pl, requests, types_file):
     def fetch_file(url, out_file):
-        response = requests.get(url, params={"downloadformat": "xlsx"})
+        response = requests.get(
+            url,
+            params={"downloadformat": "xlsx"}
+        )
         with open(out_file, mode="wb") as rfx:
             rfx.write(response.content)
 
@@ -105,10 +110,32 @@ def _(load_data):
 
 
 @app.cell
-def _(features_df):
-    import quak
-    quak.Widget(features_df)
-    return (quak,)
+def _(alt, features_df, mo):
+
+    me_df = features_df.filter(
+        features_df.get_column("me-type").is_not_null()
+    )
+
+    mo.ui.altair_chart(
+        alt.Chart(me_df).mark_circle().encode(
+            alt.Y("e-type"),
+            alt.X("me-type"),
+            size="count()"
+        )
+    )
+    return (me_df,)
+
+
+@app.cell
+def _(alt, me_df, mo):
+    mo.ui.altair_chart(
+        alt.Chart(me_df).mark_circle().encode(
+            alt.Y("m-type"),
+            alt.X("me-type"),
+            size="count()"
+        )
+    )
+    return
 
 
 @app.cell

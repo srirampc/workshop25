@@ -6,6 +6,7 @@ dependencies:
   - python=3.10
   - pip
 
+  - altair
   - duckdb
   - openpyxl
   - fastexcel
@@ -14,6 +15,7 @@ dependencies:
   - marimo
   - polars
   - pyarrow
+  - requests
   - sqlalchemy
   - sqlglot
 

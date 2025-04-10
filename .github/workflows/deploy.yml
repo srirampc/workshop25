@@ -28,7 +28,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          uv pip install marimo polars pyarrow quak duckdb openpyxl
+          uv pip install marimo polars pyarrow duckdb openpyxl altair requests
 
       - name: 🛠️ Export notebooks
         run: |

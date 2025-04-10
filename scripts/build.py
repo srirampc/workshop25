@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import subprocess
 import argparse
 from typing import List
@@ -39,7 +40,7 @@ def export_html_wasm(notebook_path: str, output_dir: str, as_app: bool = False) 
         return False
 
 
-def generate_index(all_notebooks: List[str], output_dir: str) -> None:
+def generate_index(all_notebooks: List[str], all_htmls: List[str],output_dir: str) -> None:
     """Generate the index.html file."""
     print("Generating index.html")
 
@@ -76,6 +77,18 @@ def generate_index(all_notebooks: List[str], output_dir: str) -> None:
                     f"        </div>\n"
                     f"      </div>\n"
                 )
+            for html_file in all_htmls:
+                html_name = html_file.split("/")[-1]
+                disp_name = html_name.replace("_", " ").title()
+                f.write(
+                    f'      <div class="p-4 border border-gray-200 rounded">\n'
+                    f'        <h3 class="text-lg font-semibold mb-2">{disp_name}</h3>\n'
+                    f'        <div class="flex gap-2">\n'
+                    f'          <a href="{html_name}" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded">Open Simplified</a>\n'
+                    f"        </div>\n"
+                    f"      </div>\n"
+                )
+
             f.write(
                 """    </div>
   </body>
@@ -83,6 +96,11 @@ def generate_index(all_notebooks: List[str], output_dir: str) -> None:
             )
     except IOError as e:
         print(f"Error generating index.html: {e}")
+
+
+def copy_htmls(all_html: list[str], output_dir: str) -> None:
+    for htmx in all_html:
+        shutil.copy(htmx, output_dir)
 
 
 def main() -> None:
@@ -93,6 +111,7 @@ def main() -> None:
     args = parser.parse_args()
 
     all_notebooks: List[str] = []
+    all_htmls: List[str] = []
     for directory in ["notebooks", "apps"]:
         dir_path = Path(directory)
         if not dir_path.exists():
@@ -100,6 +119,7 @@ def main() -> None:
             continue
 
         all_notebooks.extend(str(path) for path in dir_path.rglob("*.py"))
+        all_htmls.extend(str(path) for path in dir_path.rglob("*.html"))
 
     if not all_notebooks:
         print("No notebooks found!")
@@ -109,8 +129,11 @@ def main() -> None:
     for nb in all_notebooks:
         export_html_wasm(nb, args.output_dir, as_app=nb.startswith("apps/"))
 
+    #
+    copy_htmls(all_htmls, args.output_dir)
+
     # Generate index only if all exports succeeded
-    generate_index(all_notebooks, args.output_dir)
+    generate_index(all_notebooks, all_htmls, args.output_dir)
 
 
 if __name__ == "__main__":

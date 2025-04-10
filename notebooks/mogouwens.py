@@ -111,7 +111,6 @@ def _(load_data):
 
 @app.cell
 def _(alt, features_df, mo):
-
     me_df = features_df.filter(
         features_df.get_column("me-type").is_not_null()
     )
